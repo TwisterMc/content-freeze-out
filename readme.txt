@@ -1,7 +1,7 @@
 === Content Freeze Out ===
 Contributors: twistermc, wholegraindigital, MatheusFD, adamtomat, tferry
 Requires at least: 3.9.2
-Tested up to: 6.8.1
+Tested up to: 7.0
 Stable tag: 0.2.0
 Tags: content freeze, content lock, code lock, maintenance, migration
 License: GPLv2 or later
