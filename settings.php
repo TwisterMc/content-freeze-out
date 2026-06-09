@@ -69,7 +69,7 @@ class Content_Freeze_Out_Settings {
 		if (empty($custom_message)) {
 			$custom_message = __( "Content is currently frozen. You can't log in now.", 'content_freeze_out' );
 		}
-		return '<div id="login_error" style="text-align:center; font-size:1.2em; font-weight:bold; padding: 16px;">'
+		return '<div id="login_error" class="frozen-ice-box">'
 			. esc_html($custom_message)
 			. '</div>'
 			. '<p style="text-align:center; margin-top:12px;"><a href="#" id="cfo-show-login" style="font-size:0.85em; color:#72777c;">'
@@ -78,7 +78,25 @@ class Content_Freeze_Out_Settings {
 	}
 
 	function login_hide_form_styles() {
-		wp_add_inline_style( 'login', '#loginform, #nav { display: none; }' );
+		$css = '
+			#loginform, #nav { display: none; }
+			.frozen-ice-box {
+				text-align: center;
+				font-size: 1.2em;
+				font-weight: bold;
+				padding: 16px;
+				border-radius: 8px;
+				position: relative;
+				overflow: hidden;
+				background-color: #eaf6ff;
+				border: 2px solid #bce2ff;
+				box-shadow:
+					inset 0 0 12px rgba(255, 255, 255, 0.8),
+					inset 3px 3px 0px rgba(255, 255, 255, 0.7),
+					0 4px 10px rgba(0, 0, 0, 0.05);
+			}
+		';
+		wp_add_inline_style( 'login', $css );
 	}
 
 	function login_toggle_script() {
