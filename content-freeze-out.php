@@ -3,7 +3,7 @@
 Plugin Name: Content Freeze Out
 Plugin URI: http://www.wholegraindigital.com/
 Description: The content freeze plugin would allow an admin to 'lock' all content on the site for a given time period
-Version: 0.1.4
+Version: 0.2.0
 Author: Wholegrain Digital
 Author URI: http://www.wholegraindigital.com/
 Network: TRUE
@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('CONTENT_FREEZE_OUT_VERSION', '0.1.3');
+define('CONTENT_FREEZE_OUT_VERSION', '0.2.0');
 define('CONTENT_FREEZE_OUT_RELEASE_DATE', date_i18n('F j, Y', '1397937230'));
 define('CONTENT_FREEZE_OUT_DIR', plugin_dir_path(__FILE__));
 define('CONTENT_FREEZE_OUT_URL', plugin_dir_url(__FILE__));
@@ -23,7 +23,7 @@ define('CONTENT_FREEZE_OUT_URL', plugin_dir_url(__FILE__));
 if (!class_exists("Content_Freeze_Out")) :
 
 class Content_Freeze_Out {
-    var $settings, $options_page;
+    public $settings, $options_page;
 
     function __construct() {
 
@@ -81,7 +81,9 @@ class Content_Freeze_Out {
     /*
         Plugin activation code here.
     */
-    function _activate() {}
+    function _activate() {
+        add_option($this->settings->settings_field, Content_Freeze_Out_Settings::$default_settings);
+    }
 
     /*
         Plugin deactivation code here.
@@ -102,30 +104,6 @@ class Content_Freeze_Out {
     function admin_menu() {
     }
 
-
-    /*
-        Example print function for debugging.
-    */
-    function print_example($str, $print_info=TRUE) {
-        if (!$print_info) return;
-        __($str . "<br/><br/>\n", 'content_freeze_out');
-    }
-
-    /*
-        Redirect to a different page using javascript. More details-
-        http://shibashake.com/wordpress-theme/wordpress-page-redirect
-    */
-    function javascript_redirect($location) {
-        // redirect after header here can't use wp_redirect($location);
-        ?>
-          <script type="text/javascript">
-          <!--
-          window.location= '<?php echo esc_js( esc_url( $location ) ); ?>';
-          //-->
-          </script>
-        <?php
-        exit;
-    }
 
 } // end class
 endif;

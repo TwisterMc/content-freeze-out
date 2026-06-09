@@ -13,7 +13,7 @@ class Content_Freeze_Out_Settings {
 		'lock_message' => '',
 	);
 
-	var $pagehook, $page_id, $settings_field, $options;
+	public $pagehook, $page_id, $settings_field, $options;
 
 	function __construct() {
 		$this->page_id = 'content_freeze_out';
@@ -48,7 +48,6 @@ class Content_Freeze_Out_Settings {
 
 	function admin_init() {
 		register_setting($this->settings_field, $this->settings_field, array($this, 'sanitize_theme_options'));
-		add_option($this->settings_field, Content_Freeze_Out_Settings::$default_settings);
 
 		if ($this->is_frozen() && isset($_GET['page']) && $_GET['page'] != 'content_freeze_out') {
 			add_action('admin_notices', array($this, 'content_frozen_notice'));
@@ -215,7 +214,7 @@ class Content_Freeze_Out_Settings {
 			</p>
 			<?php if (!$config_override): ?>
 			<p>
-				<input type="submit" class="button button-primary" name="save_options" value="<?php esc_attr_e('Unfreeze Content'); ?>" />
+				<input type="submit" class="button button-primary" name="save_options" value="<?php esc_attr_e('Unfreeze Content', 'content_freeze_out'); ?>" />
 			</p>
 			<?php else: ?>
 			<p><em><?php _e('To unfreeze, remove the <code>CONTENT_FREEZE_OUT</code> constant from wp-config.php.', 'content_freeze_out'); ?></em></p>
@@ -230,7 +229,7 @@ class Content_Freeze_Out_Settings {
 				<input type="text" name="<?php echo $this->get_field_name('lock_message'); ?>" id="<?php echo $this->get_field_id('lock_message'); ?>" value="<?php echo esc_attr($this->get_field_value('lock_message')); ?>" class="regular-text" placeholder="<?php esc_attr_e('Leave blank for default message', 'content_freeze_out'); ?>" />
 			</p>
 			<p>
-				<input type="submit" class="button button-primary" name="save_options" value="<?php esc_attr_e('Freeze Content'); ?>" />
+				<input type="submit" class="button button-primary" name="save_options" value="<?php esc_attr_e('Freeze Content', 'content_freeze_out'); ?>" />
 			</p>
 <?php
 		}
