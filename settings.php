@@ -44,11 +44,11 @@ class Content_Freeze_Out_Settings {
 	function admin_init() {
 		register_setting($this->settings_field, $this->settings_field, array($this, 'sanitize_theme_options'));
 
-		if ($this->is_frozen() && isset($_GET['page']) && $_GET['page'] != 'content_freeze_out') {
+		if ($this->is_frozen() && isset($_GET['page']) && sanitize_text_field(wp_unslash($_GET['page'])) !== 'content_freeze_out') {
 			add_action('admin_notices', array($this, 'content_frozen_notice'));
 		}
 
-		if ($this->is_frozen() && $this->get_field_value('allowed_id') != get_current_user_id()) {
+		if ($this->is_frozen() && (int) $this->get_field_value('allowed_id') !== (int) get_current_user_id()) {
 			if ( ! wp_doing_ajax() && ! defined( 'REST_REQUEST' ) ) {
 				wp_logout();
 				wp_redirect( wp_login_url() );
@@ -62,12 +62,13 @@ class Content_Freeze_Out_Settings {
 		if (empty($custom_message)) {
 			$custom_message = __( "The site is currently in a content freeze.", 'content_freeze_out' );
 		}
-		return '<div id="login_error" class="frozen-ice-box">'
+		$notice = '<div id="login_error" class="frozen-ice-box">'
 			. esc_html($custom_message)
 			. '</div>'
-			. '<p style="text-align:center; margin-top:12px;"><a href="#" id="cfo-show-login" style="font-size:0.85em; color:#72777c;">'
+			. '<p style="text-align:center; margin-top:12px;"><button type="button" id="cfo-show-login" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:#72777c; padding:0;">'
 			. esc_html__( 'Site administrator? Click here.', 'content_freeze_out' )
-			. '</a></p>';
+			. '</button></p>';
+		return $notice . $message;
 	}
 
 	function login_hide_form_styles() {
@@ -198,7 +199,7 @@ class Content_Freeze_Out_Settings {
 
 			<form method="post" action="options.php">
 				<?php settings_fields($this->settings_field); ?>
-				<input type="hidden" name="<?php echo $this->get_field_name('allowed_id'); ?>" value="<?php echo get_current_user_id(); ?>" />
+				<input type="hidden" name="<?php echo esc_attr( $this->get_field_name('allowed_id') ); ?>" value="<?php echo esc_attr( get_current_user_id() ); ?>" />
 
 				<?php if ($this->is_frozen()): ?>
 					<p>Content Freeze is currently <strong>enabled</strong>. <?php if ($config_override): ?> <em>(active via <code>CONTENT_FREEZE_OUT</code> constant in wp-config)</em><?php endif; ?></p>
@@ -209,10 +210,10 @@ class Content_Freeze_Out_Settings {
 				<table class="form-table" role="presentation">
 					<tr>
 						<th scope="row">
-							<label for="<?php echo $this->get_field_id('lock_message'); ?>"><?php esc_html_e('Lock screen message:', 'content_freeze_out'); ?></label>
+							<label for="<?php echo esc_attr( $this->get_field_id('lock_message') ); ?>"><?php esc_html_e('Lock screen message:', 'content_freeze_out'); ?></label>
 						</th>
 						<td>
-							<input type="text" name="<?php echo $this->get_field_name('lock_message'); ?>" id="<?php echo $this->get_field_id('lock_message'); ?>" value="<?php echo esc_attr($this->get_field_value('lock_message')); ?>" class="regular-text" placeholder="<?php esc_attr_e( "Content is currently frozen. You can't log in now.", 'content_freeze_out' ); ?>" />
+							<input type="text" name="<?php echo esc_attr( $this->get_field_name('lock_message') ); ?>" id="<?php echo esc_attr( $this->get_field_id('lock_message') ); ?>" value="<?php echo esc_attr($this->get_field_value('lock_message')); ?>" class="regular-text" placeholder="<?php esc_attr_e( "Content is currently frozen. You can't log in now.", 'content_freeze_out' ); ?>" />
 						</td>
 					</tr>
 				</table>
@@ -223,7 +224,7 @@ class Content_Freeze_Out_Settings {
 						<?php if (!$config_override): ?>
 							<input type="submit" class="button button-primary" name="cfo_action" value="<?php esc_attr_e('Unfreeze Content', 'content_freeze_out'); ?>" />
 						<?php else: ?>
-							<em><?php _e('To unfreeze, remove the <code>CONTENT_FREEZE_OUT</code> constant from wp-config.php.', 'content_freeze_out'); ?></em>
+							<em><?php echo wp_kses( __( 'To unfreeze, remove the <code>CONTENT_FREEZE_OUT</code> constant from wp-config.php.', 'content_freeze_out' ), array( 'code' => array() ) ); ?></em>
 						<?php endif; ?>
 					<?php else: ?>
 						<input type="submit" class="button button-primary" name="cfo_action" value="<?php esc_attr_e('Freeze Content', 'content_freeze_out'); ?>" />
