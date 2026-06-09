@@ -4,10 +4,16 @@ Plugin Name: Content Freeze Out
 Plugin URI: https://www.twistermc.com/
 Description: Enable a content freeze, locking all users out of the site.
 Version: 0.2.0
+Requires at least: 3.9.2
+Requires PHP: 7.4
+Tested up to: 7.0
 Author: TwisterMc & Wholegrain Digital
 Author URI: https://www.twistermc.com/
 Network: TRUE
-License: GPL
+License: GPL-2.0-or-later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: content_freeze_out
+Domain Path: /lang
 */
 
 if (!defined('ABSPATH')) {
