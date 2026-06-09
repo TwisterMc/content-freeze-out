@@ -12,6 +12,7 @@ class Content_Freeze_Out_Settings {
 	public static $default_settings = array(
 		'allowed_id' => 0,
 		'content_frozen' => 0,
+		'lock_message' => '',
 	);
 
 	var $pagehook, $page_id, $settings_field, $options;
@@ -34,8 +35,15 @@ class Content_Freeze_Out_Settings {
 		add_action('init', array($this,'init'), 20);
 	}
 
+	protected function is_frozen() {
+		if (defined('CONTENT_FREEZE_OUT') && CONTENT_FREEZE_OUT) {
+			return true;
+		}
+		return (bool) $this->get_field_value('content_frozen');
+	}
+
 	function init() {
-		if($this->get_field_value('content_frozen')) {
+		if ($this->is_frozen()) {
 			add_filter('login_message', array($this, 'login_warning_message'));
 		}
 	}
@@ -44,19 +52,26 @@ class Content_Freeze_Out_Settings {
 		register_setting($this->settings_field, $this->settings_field, array($this, 'sanitize_theme_options'));
 		add_option($this->settings_field, Content_Freeze_Out_Settings::$default_settings);
 
-		if($this->get_field_value('content_frozen') && isset($_GET['page']) && $_GET['page']!='content_freeze_out') {
+		if ($this->is_frozen() && isset($_GET['page']) && $_GET['page'] != 'content_freeze_out') {
 			add_action('admin_notices', array($this, 'content_frozen_notice'));
 		}
 
-		if($this->get_field_value('content_frozen') && $this->get_field_value('allowed_id') != get_current_user_id()) {
+		if ($this->is_frozen() && $this->get_field_value('allowed_id') != get_current_user_id()) {
 			wp_logout();
 			wp_redirect(wp_login_url());
 		}
 	}
 
 	function login_warning_message($message) {
-		$user_info = get_userdata($this->get_field_value('allowed_id'));
-	    return '<div id="login_error">Content is frozen'.(!empty($user_info->user_firstname) ? ' by ' . $user_info->user_firstname . ' ' . $user_info->user_lastname : '').'. You can\'t login now.</div>';
+		$custom_message = $this->get_field_value('lock_message');
+		if (empty($custom_message)) {
+			$user_info = get_userdata($this->get_field_value('allowed_id'));
+			$by = (!empty($user_info->user_firstname) ? ' by ' . $user_info->user_firstname . ' ' . $user_info->user_lastname : '');
+			$custom_message = 'Content is frozen' . $by . '. You can\'t login now.';
+		}
+		return '<div id="login_error" style="text-align:center; font-size:1.2em; font-weight:bold; padding: 16px;">'
+			. esc_html($custom_message)
+			. '</div>';
 	}
 
 	function content_frozen_notice() {
@@ -101,8 +116,11 @@ class Content_Freeze_Out_Settings {
 		Sanitize our plugin settings array as needed.
 	*/
 	function sanitize_theme_options($options) {
-		if($options['content_frozen']) {
+		if ($options['content_frozen']) {
 			$options['content_frozen'] = stripcslashes($options['content_frozen']);
+		}
+		if (isset($options['lock_message'])) {
+			$options['lock_message'] = sanitize_text_field(stripcslashes($options['lock_message']));
 		}
 		return $options;
 	}
@@ -175,18 +193,31 @@ class Content_Freeze_Out_Settings {
 	}
 
 	function settings_box() {
-		if($this->get_field_value('content_frozen')) {
+		$config_override = defined('CONTENT_FREEZE_OUT') && CONTENT_FREEZE_OUT;
+		if ($this->is_frozen()) {
 ?>
 			<input type="hidden" name="<?php echo $this->get_field_name('content_frozen'); ?>" id="<?php echo $this->get_field_id('content_frozen'); ?>" value="0" />
-			<p>You have <b>frozen</b> the content for other admins</p>
+			<p>You have <b>frozen</b> the content for other admins<?php if ($config_override): ?> <em>(active via <code>CONTENT_FREEZE_OUT</code> constant in wp-config)</em><?php endif; ?></p>
+			<p>
+				<label for="<?php echo $this->get_field_id('lock_message'); ?>"><?php _e('Lock screen message:', 'content_freeze_out'); ?></label><br />
+				<input type="text" name="<?php echo $this->get_field_name('lock_message'); ?>" id="<?php echo $this->get_field_id('lock_message'); ?>" value="<?php echo esc_attr($this->get_field_value('lock_message')); ?>" class="regular-text" placeholder="<?php esc_attr_e('Leave blank for default message', 'content_freeze_out'); ?>" />
+			</p>
+			<?php if (!$config_override): ?>
 			<p>
 				<input type="submit" class="button button-primary" name="save_options" value="<?php esc_attr_e('Unfreeze Content'); ?>" />
 			</p>
+			<?php else: ?>
+			<p><em><?php _e('To unfreeze, remove the <code>CONTENT_FREEZE_OUT</code> constant from wp-config.php.', 'content_freeze_out'); ?></em></p>
+			<?php endif; ?>
 <?php
 		} else {
 ?>
 			<input type="hidden" name="<?php echo $this->get_field_name('content_frozen'); ?>" id="<?php echo $this->get_field_id('content_frozen'); ?>" value="1" />
 			<p>Content is currently <b>not frozen</b></p>
+			<p>
+				<label for="<?php echo $this->get_field_id('lock_message'); ?>"><?php _e('Lock screen message:', 'content_freeze_out'); ?></label><br />
+				<input type="text" name="<?php echo $this->get_field_name('lock_message'); ?>" id="<?php echo $this->get_field_id('lock_message'); ?>" value="<?php echo esc_attr($this->get_field_value('lock_message')); ?>" class="regular-text" placeholder="<?php esc_attr_e('Leave blank for default message', 'content_freeze_out'); ?>" />
+			</p>
 			<p>
 				<input type="submit" class="button button-primary" name="save_options" value="<?php esc_attr_e('Freeze Content'); ?>" />
 			</p>
