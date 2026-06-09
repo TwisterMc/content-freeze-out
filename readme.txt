@@ -1,6 +1,6 @@
 === Content Freeze Out ===
 Contributors: twistermc, wholegraindigital, MatheusFD, adamtomat, tferry
-Requires at least: 3.9.2
+Requires at least: 6.0
 Requires PHP: 7.4
 Tested up to: 7.0
 Stable tag: 0.2.0
@@ -27,30 +27,15 @@ The content freeze plugin is really plug and play. Just upload the plugin and ac
 2. Activate the plugin through the 'Plugins' menu in WordPress
 To start/stop a content freeze, go to Settings > Content Freeze and click the Freeze Content / Unfreeze Content button.
 
-
 == Frequently Asked Questions ==
-
-= Will it work with all themes? =
-
-Yes, it should work fine with all themes. If you find a problem, let us know.
 
 = Does it work on multisite installations? =
 
 Yes it does, but you have to activate the freeze on each individual site within your network. Once activated, you need to visit the wp-admin URL to access any individual sub-sites that are not locked (wp-login.php URLs will not work during the freeze).
 
-In the future we hope to add a network freeze option.
-
-= Can I schedule a content freeze? =
-
-Not at this time, but we hope to add that feature soon.
-
 = Does it guarantee that no changes can be made to my site during a content freeze? =
 
 Not 100%. The only person that could make any changes to the site from inside the CMS is the person who is in control of the content freeze. It is generally safe to assume that this person will respect the content freeze and not make any changes. It is also possible for people to leave comments on your site, but we will soon add a comment lock to prevent this.
-
-
-
-== Screenshots ==
 
 
 == Changelog ==
