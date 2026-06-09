@@ -43,6 +43,8 @@ class Content_Freeze_Out_Settings {
 	function init() {
 		if ($this->is_frozen()) {
 			add_filter('login_message', array($this, 'login_warning_message'));
+			add_action('login_enqueue_scripts', array($this, 'login_hide_form_styles'));
+			add_action('login_footer', array($this, 'login_toggle_script'));
 		}
 	}
 
@@ -69,7 +71,33 @@ class Content_Freeze_Out_Settings {
 		}
 		return '<div id="login_error" style="text-align:center; font-size:1.2em; font-weight:bold; padding: 16px;">'
 			. esc_html($custom_message)
-			. '</div>';
+			. '</div>'
+			. '<p style="text-align:center; margin-top:12px;"><a href="#" id="cfo-show-login" style="font-size:0.85em; color:#72777c;">'
+			. esc_html__( 'Site administrator? Click here.', 'content_freeze_out' )
+			. '</a></p>';
+	}
+
+	function login_hide_form_styles() {
+		wp_add_inline_style( 'login', '#loginform, #nav { display: none; }' );
+	}
+
+	function login_toggle_script() {
+		?>
+		<script>
+		(function() {
+			var link = document.getElementById('cfo-show-login');
+			if (!link) return;
+			link.addEventListener('click', function(e) {
+				e.preventDefault();
+				var form = document.getElementById('loginform');
+				var nav  = document.getElementById('nav');
+				if (form) form.style.display = 'block';
+				if (nav)  nav.style.display  = 'block';
+				this.parentNode.style.display = 'none';
+			});
+		})();
+		</script>
+		<?php
 	}
 
 	function content_frozen_notice() {
