@@ -91,8 +91,15 @@ class Content_Freeze_Out_Settings {
 				e.preventDefault();
 				var form = document.getElementById('loginform');
 				var nav  = document.getElementById('nav');
-				if (form) form.style.display = 'block';
-				if (nav)  nav.style.display  = 'block';
+				if (form) {
+					form.style.display = 'block';
+					// Re-enable any inputs that WordPress disabled while the form was hidden.
+					var inputs = form.querySelectorAll('input, button');
+					for (var i = 0; i < inputs.length; i++) {
+						inputs[i].removeAttribute('disabled');
+					}
+				}
+				if (nav) nav.style.display = 'block';
 				this.parentNode.style.display = 'none';
 			});
 		})();
