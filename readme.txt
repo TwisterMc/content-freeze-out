@@ -1,11 +1,11 @@
-=== Content Freeze ===
-Contributors: wholegraindigital, MatheusFD, adamtomat, tferry
+=== Content Freeze Out ===
+Contributors: twistermc, wholegraindigital, MatheusFD, adamtomat, tferry
 Requires at least: 3.9.2
 Tested up to: 6.8.1
-Stable tag: 0.1.4
+Stable tag: 0.2.0
 Tags: content freeze, content lock, code lock, maintenance, migration
 License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 The Content Freeze plugin allows an admin to 'lock' all content on the site to prevent the site being edited.
 
 == Description ==
@@ -53,6 +53,24 @@ Not 100%. The only person that could make any changes to the site from inside th
 
 
 == Changelog ==
+
+= 0.2.0 =
+
+* Security: replaced invalid `is_admin()` direct-file-access guard with standard `ABSPATH` check
+* Security: added `exit` after `wp_redirect()` to prevent redirect bypass; gated logout to skip AJAX and REST requests
+* Security: sanitize `allowed_id` as integer in settings sanitization callback
+* Security: escaped `$location` with `esc_js()`/`esc_url()` in JS redirect helper
+* Security: removed admin's real name from default login lock message
+* Security: moved HTML out of translated string in admin notice; URL now escaped separately via `esc_url()`
+* Fix: changed `'administrator'` role slug to `'manage_options'` capability in `add_options_page()`
+* Fix: unified capability check to `manage_options` (was `update_plugins`)
+* Fix: corrected `load_plugin_textdomain()` argument order (deprecated second arg set to `false`)
+* Fix: replaced `switch_to_blog()` with `restore_current_blog()` after multisite loop
+* Fix: moved default option setup from `admin_init` to activation hook to avoid per-request DB query
+* Fix: added missing text domain to `esc_attr_e()` calls
+* Improvement: removed unused `javascript_redirect()` and `print_example()` methods
+* Improvement: updated PHP4-style `var` property declarations to `public`
+* Plugin renamed to Content Freeze Out; author updated to TwisterMc & Wholegrain Digital
 
 = 0.1.4 =
 

@@ -1,14 +1,13 @@
 <?php
 /*
 Plugin Name: Content Freeze Out
-Plugin URI: http://www.wholegraindigital.com/
-Description: The content freeze plugin would allow an admin to 'lock' all content on the site for a given time period
+Plugin URI: https://www.twistermc.com/
+Description: Enable a content freeze, locking all users out of the site.
 Version: 0.2.0
-Author: Wholegrain Digital
-Author URI: http://www.wholegraindigital.com/
+Author: TwisterMc & Wholegrain Digital
+Author URI: https://www.twistermc.com/
 Network: TRUE
 License: GPL
-Copyright: Wholegrain Digital
 */
 
 if (!defined('ABSPATH')) {
