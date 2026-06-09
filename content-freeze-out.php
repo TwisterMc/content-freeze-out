@@ -34,8 +34,6 @@ class Content_Freeze_Out {
         $this->settings = new Content_Freeze_Out_Settings();
 
         add_action('init', array($this,'init'));
-        add_action('admin_init', array($this,'admin_init'));
-        add_action('admin_menu', array($this,'admin_menu'));
 
         register_activation_hook(__FILE__, array($this,'activate'));
         register_deactivation_hook(__FILE__, array($this,'deactivate'));
@@ -55,7 +53,6 @@ class Content_Freeze_Out {
             // check if it is a network activation - if so, run the activation function
             // for each blog id
             if ($networkwide) {
-                $old_blog = $wpdb->blogid;
                 // Get all blog ids
                 $blogids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs}");
                 foreach ($blogids as $blog_id) {
@@ -95,12 +92,6 @@ class Content_Freeze_Out {
     */
     function init() {
         load_plugin_textdomain('content_freeze_out', false, basename(dirname(__FILE__)) . '/lang');
-    }
-
-    function admin_init() {
-    }
-
-    function admin_menu() {
     }
 
 

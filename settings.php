@@ -8,6 +8,11 @@ if (!class_exists("Content_Freeze_Out_Settings")) :
 class Content_Freeze_Out_Settings {
 
 	public $page_id, $settings_field, $options;
+	public static $default_settings = array(
+		'allowed_id'     => 0,
+		'content_frozen' => 0,
+		'lock_message'   => '',
+	);
 
 	function __construct() {
 		$this->page_id = 'content_freeze_out';
@@ -15,7 +20,9 @@ class Content_Freeze_Out_Settings {
 		$this->options = get_option($this->settings_field);
 
 		if ($this->options === false) {
-			$this->options = [];
+			$this->options = self::$default_settings;
+		} else {
+			$this->options = wp_parse_args($this->options, self::$default_settings);
 		}
 
 		if (is_admin()) {
@@ -30,7 +37,12 @@ class Content_Freeze_Out_Settings {
 		if (defined('CONTENT_FREEZE_OUT') && CONTENT_FREEZE_OUT) {
 			return true;
 		}
-		return (bool) $this->get_field_value('content_frozen');
+
+		if (! (bool) $this->get_field_value('content_frozen')) {
+			return false;
+		}
+
+		return (int) $this->get_field_value('allowed_id') > 0;
 	}
 
 	function init() {
@@ -65,7 +77,7 @@ class Content_Freeze_Out_Settings {
 		$notice = '<div id="login_error" class="frozen-ice-box">'
 			. esc_html($custom_message)
 			. '</div>'
-			. '<p style="text-align:center; margin-top:12px;"><button type="button" id="cfo-show-login" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:#72777c; padding:0;">'
+			. '<p class="cfo-admin-link-wrap"><button type="button" id="cfo-show-login" class="cfo-show-login" aria-controls="loginform" aria-expanded="false">'
 			. esc_html__( 'Site administrator? Click here.', 'content_freeze_out' )
 			. '</button></p>';
 		return $notice . $message;
@@ -74,6 +86,22 @@ class Content_Freeze_Out_Settings {
 	function login_hide_form_styles() {
 		$css = '
 			#loginform, #nav { display: none; }
+			.cfo-admin-link-wrap { text-align: center; margin-top: 12px; }
+			.cfo-show-login {
+				background: transparent;
+				border: 1px solid #50575e;
+				border-radius: 4px;
+				cursor: pointer;
+				font-size: 0.95em;
+				line-height: 1.4;
+				color: #1d2327;
+				padding: 6px 10px;
+			}
+			.cfo-show-login:focus,
+			.cfo-show-login:focus-visible {
+				outline: 2px solid #2271b1;
+				outline-offset: 2px;
+			}
 			.frozen-ice-box {
 				text-align: center;
 				font-size: 1.2em;
@@ -112,6 +140,7 @@ class Content_Freeze_Out_Settings {
 					}
 				}
 				if (nav) nav.style.display = 'block';
+				this.setAttribute('aria-expanded', 'true');
 				this.parentNode.style.display = 'none';
 			});
 		})();
@@ -147,6 +176,9 @@ class Content_Freeze_Out_Settings {
 		Sanitize our plugin settings array as needed.
 	*/
 	function sanitize_theme_options($options) {
+		$options = is_array($options) ? $options : array();
+		$options = wp_parse_args($options, self::$default_settings);
+
 		if (isset($options['allowed_id'])) {
 			$options['allowed_id'] = absint($options['allowed_id']);
 		}
@@ -154,16 +186,21 @@ class Content_Freeze_Out_Settings {
 			$options['lock_message'] = sanitize_text_field(wp_unslash($options['lock_message']));
 		}
 
-		// Determine freeze state from the submitted action button, not a hidden field.
+		// Determine freeze state from stable action tokens.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$action = isset($_POST['cfo_action']) ? sanitize_text_field(wp_unslash($_POST['cfo_action'])) : '';
+		$action = isset($_POST['cfo_action']) ? sanitize_key(wp_unslash($_POST['cfo_action'])) : '';
 		$current = (bool) $this->get_field_value('content_frozen');
-		if ($action === __('Freeze Content', 'content_freeze_out')) {
+		if ($action === 'freeze_content') {
 			$options['content_frozen'] = 1;
-		} elseif ($action === __('Unfreeze Content', 'content_freeze_out')) {
+			$options['allowed_id'] = (int) get_current_user_id();
+		} elseif ($action === 'unfreeze_content') {
 			$options['content_frozen'] = 0;
+			$options['allowed_id'] = 0;
 		} else {
 			$options['content_frozen'] = (int) $current;
+			if ($options['content_frozen'] !== 1) {
+				$options['allowed_id'] = 0;
+			}
 		}
 
 		return $options;
@@ -199,7 +236,6 @@ class Content_Freeze_Out_Settings {
 
 			<form method="post" action="options.php">
 				<?php settings_fields($this->settings_field); ?>
-				<input type="hidden" name="<?php echo esc_attr( $this->get_field_name('allowed_id') ); ?>" value="<?php echo esc_attr( get_current_user_id() ); ?>" />
 
 				<?php if ($this->is_frozen()): ?>
 					<p>Content Freeze is currently <strong>enabled</strong>. <?php if ($config_override): ?> <em>(active via <code>CONTENT_FREEZE_OUT</code> constant in wp-config)</em><?php endif; ?></p>
@@ -219,15 +255,15 @@ class Content_Freeze_Out_Settings {
 				</table>
 
 				<p class="submit">
-					<input type="submit" class="button" name="cfo_action" value="<?php esc_attr_e('Save Message', 'content_freeze_out'); ?>" />
+					<button type="submit" class="button" name="cfo_action" value="save_message"><?php esc_html_e('Save Message', 'content_freeze_out'); ?></button>
 					<?php if ($this->is_frozen()): ?>
 						<?php if (!$config_override): ?>
-							<input type="submit" class="button button-primary" name="cfo_action" value="<?php esc_attr_e('Unfreeze Content', 'content_freeze_out'); ?>" />
+							<button type="submit" class="button button-primary" name="cfo_action" value="unfreeze_content"><?php esc_html_e('Unfreeze Content', 'content_freeze_out'); ?></button>
 						<?php else: ?>
 							<em><?php echo wp_kses( __( 'To unfreeze, remove the <code>CONTENT_FREEZE_OUT</code> constant from wp-config.php.', 'content_freeze_out' ), array( 'code' => array() ) ); ?></em>
 						<?php endif; ?>
 					<?php else: ?>
-						<input type="submit" class="button button-primary" name="cfo_action" value="<?php esc_attr_e('Freeze Content', 'content_freeze_out'); ?>" />
+						<button type="submit" class="button button-primary" name="cfo_action" value="freeze_content"><?php esc_html_e('Freeze Content', 'content_freeze_out'); ?></button>
 					<?php endif; ?>
 				</p>
 			</form>
