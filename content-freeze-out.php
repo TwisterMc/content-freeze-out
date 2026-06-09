@@ -20,15 +20,12 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('CONTENT_FREEZE_OUT_VERSION', '0.2.0');
-define('CONTENT_FREEZE_OUT_RELEASE_DATE', date_i18n('F j, Y', '1397937230'));
 define('CONTENT_FREEZE_OUT_DIR', plugin_dir_path(__FILE__));
-define('CONTENT_FREEZE_OUT_URL', plugin_dir_url(__FILE__));
 
 if (!class_exists("Content_Freeze_Out")) :
 
 class Content_Freeze_Out {
-    public $settings, $options_page;
+    public $settings;
 
     function __construct() {
 
@@ -42,7 +39,6 @@ class Content_Freeze_Out {
         add_action('init', array($this,'init'));
 
         register_activation_hook(__FILE__, array($this,'activate'));
-        register_deactivation_hook(__FILE__, array($this,'deactivate'));
     }
 
     /*
@@ -76,22 +72,12 @@ class Content_Freeze_Out {
         $this->network_propagate(array($this, '_activate'), $networkwide);
     }
 
-    function deactivate($networkwide) {
-        $this->network_propagate(array($this, '_deactivate'), $networkwide);
-    }
-
     /*
         Plugin activation code here.
     */
     function _activate() {
         add_option($this->settings->settings_field, Content_Freeze_Out_Settings::$default_settings);
     }
-
-    /*
-        Plugin deactivation code here.
-    */
-    function _deactivate() {}
-
 
     /*
         Load language translation files (if any) for our plugin.
