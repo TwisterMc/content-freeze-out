@@ -77,7 +77,7 @@ class Content_Freeze_Out_Settings {
 		$notice = '<div id="login_error" class="frozen-ice-box">'
 			. esc_html($custom_message)
 			. '</div>'
-			. '<p class="cfo-admin-link-wrap"><button type="button" id="cfo-show-login" class="cfo-show-login" aria-controls="loginform" aria-expanded="false">'
+			. '<p class="cfo-admin-link-wrap"><button type="button" id="cfo-show-login" class="button" aria-controls="loginform" aria-expanded="false">'
 			. esc_html__( 'Site administrator? Click here.', 'content_freeze_out' )
 			. '</button></p>';
 		return $notice . $message;
@@ -87,21 +87,7 @@ class Content_Freeze_Out_Settings {
 		$css = '
 			#loginform, #nav { display: none; }
 			.cfo-admin-link-wrap { text-align: center; margin-top: 12px; }
-			.cfo-show-login {
-				background: transparent;
-				border: 1px solid #50575e;
-				border-radius: 4px;
-				cursor: pointer;
-				font-size: 0.95em;
-				line-height: 1.4;
-				color: #1d2327;
-				padding: 6px 10px;
-			}
-			.cfo-show-login:focus,
-			.cfo-show-login:focus-visible {
-				outline: 2px solid #2271b1;
-				outline-offset: 2px;
-			}
+			
 			.frozen-ice-box {
 				text-align: center;
 				font-size: 1.2em;
