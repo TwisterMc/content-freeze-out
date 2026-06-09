@@ -67,7 +67,7 @@ class Content_Freeze_Out_Settings {
 	function login_warning_message($message) {
 		$custom_message = $this->get_field_value('lock_message');
 		if (empty($custom_message)) {
-			$custom_message = __( "Content is currently frozen. You can't log in now.", 'content_freeze_out' );
+			$custom_message = __( "The site is currently in a content freeze.", 'content_freeze_out' );
 		}
 		return '<div id="login_error" class="frozen-ice-box">'
 			. esc_html($custom_message)
