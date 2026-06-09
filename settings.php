@@ -245,7 +245,7 @@ class Content_Freeze_Out_Settings {
 			<p>You have <b>frozen</b> the content for other admins<?php if ($config_override): ?> <em>(active via <code>CONTENT_FREEZE_OUT</code> constant in wp-config)</em><?php endif; ?></p>
 			<p>
 				<label for="<?php echo $this->get_field_id('lock_message'); ?>"><?php _e('Lock screen message:', 'content_freeze_out'); ?></label><br />
-				<input type="text" name="<?php echo $this->get_field_name('lock_message'); ?>" id="<?php echo $this->get_field_id('lock_message'); ?>" value="<?php echo esc_attr($this->get_field_value('lock_message')); ?>" class="regular-text" placeholder="<?php esc_attr_e('Leave blank for default message', 'content_freeze_out'); ?>" />
+				<input type="text" name="<?php echo $this->get_field_name('lock_message'); ?>" id="<?php echo $this->get_field_id('lock_message'); ?>" value="<?php echo esc_attr($this->get_field_value('lock_message')); ?>" class="regular-text" placeholder="<?php esc_attr_e( "Content is currently frozen. You can't log in now.", 'content_freeze_out' ); ?>" />
 			</p>
 			<?php if (!$config_override): ?>
 			<p>
@@ -261,7 +261,7 @@ class Content_Freeze_Out_Settings {
 			<p>Content is currently <b>not frozen</b></p>
 			<p>
 				<label for="<?php echo $this->get_field_id('lock_message'); ?>"><?php _e('Lock screen message:', 'content_freeze_out'); ?></label><br />
-				<input type="text" name="<?php echo $this->get_field_name('lock_message'); ?>" id="<?php echo $this->get_field_id('lock_message'); ?>" value="<?php echo esc_attr($this->get_field_value('lock_message')); ?>" class="regular-text" placeholder="<?php esc_attr_e('Leave blank for default message', 'content_freeze_out'); ?>" />
+				<input type="text" name="<?php echo $this->get_field_name('lock_message'); ?>" id="<?php echo $this->get_field_id('lock_message'); ?>" value="<?php echo esc_attr($this->get_field_value('lock_message')); ?>" class="regular-text" placeholder="<?php esc_attr_e( "Content is currently frozen. You can't log in now.", 'content_freeze_out' ); ?>" />
 			</p>
 			<p>
 				<input type="submit" class="button button-primary" name="save_options" value="<?php esc_attr_e('Freeze Content', 'content_freeze_out'); ?>" />
