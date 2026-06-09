@@ -7,12 +7,6 @@ if (!class_exists("Content_Freeze_Out_Settings")) :
 
 class Content_Freeze_Out_Settings {
 
-	public static $default_settings = array(
-		'allowed_id' => 0,
-		'content_frozen' => 0,
-		'lock_message' => '',
-	);
-
 	public $page_id, $settings_field, $options;
 
 	function __construct() {
@@ -145,8 +139,7 @@ class Content_Freeze_Out_Settings {
 		if (! current_user_can('manage_options'))
 			return;
 
-		$page = add_options_page(__('Content Freeze Out', 'content_freeze_out'), __('Content Freeze Out', 'content_freeze_out'), 'manage_options', $this->page_id, array($this,'render'));
-
+		add_options_page(__('Content Freeze Out', 'content_freeze_out'), __('Content Freeze Out', 'content_freeze_out'), 'manage_options', $this->page_id, array($this,'render'));
 	}
 
 	/*
@@ -183,7 +176,7 @@ class Content_Freeze_Out_Settings {
 	}
 
 	protected function get_field_id($id) {
-		return sprintf('%s[%s]', $this->settings_field, $id);
+		return $this->get_field_name($id);
 	}
 
 	protected function get_field_value($key) {
@@ -208,9 +201,9 @@ class Content_Freeze_Out_Settings {
 				<input type="hidden" name="<?php echo $this->get_field_name('allowed_id'); ?>" value="<?php echo get_current_user_id(); ?>" />
 
 				<?php if ($this->is_frozen()): ?>
-					<p>You have <b>frozen</b> the content for other admins<?php if ($config_override): ?> <em>(active via <code>CONTENT_FREEZE_OUT</code> constant in wp-config)</em><?php endif; ?></p>
+					<p>Content Freeze is currently <strong>enabled</strong>. <?php if ($config_override): ?> <em>(active via <code>CONTENT_FREEZE_OUT</code> constant in wp-config)</em><?php endif; ?></p>
 				<?php else: ?>
-					<p>Content is currently <b>not frozen</b>.</p>
+					<p>Content Freeze is currently <strong>disabled</strong>.</p>
 				<?php endif; ?>
 
 				<table class="form-table" role="presentation">
