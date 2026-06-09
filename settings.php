@@ -224,9 +224,10 @@ class Content_Freeze_Out_Settings {
 				<?php settings_fields($this->settings_field); ?>
 
 				<?php if ($this->is_frozen()): ?>
-					<p>Content Freeze is currently <strong>enabled</strong>. <?php if ($config_override): ?> <em>(active via <code>CONTENT_FREEZE_OUT</code> constant in wp-config)</em><?php endif; ?></p>
+					<p><?php echo wp_kses( __( 'Content Freeze is currently <strong>enabled</strong>.', 'content_freeze_out' ), array( 'strong' => array() ) ); ?>
+					<?php if ($config_override): ?> <em><?php echo wp_kses( __( '(active via <code>CONTENT_FREEZE_OUT</code> constant in wp-config)', 'content_freeze_out' ), array( 'code' => array() ) ); ?></em><?php endif; ?></p>
 				<?php else: ?>
-					<p>Content Freeze is currently <strong>disabled</strong>.</p>
+					<p><?php echo wp_kses( __( 'Content Freeze is currently <strong>disabled</strong>.', 'content_freeze_out' ), array( 'strong' => array() ) ); ?></p>
 				<?php endif; ?>
 
 				<table class="form-table" role="presentation">

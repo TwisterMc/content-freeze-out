@@ -1,0 +1,55 @@
+# Spanish (Spain) translation for Content Freeze Out
+# Copyright (C) 2024 TwisterMc & Wholegrain Digital
+# This file is distributed under the same license as the Content Freeze Out plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Content Freeze Out\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Spanish <es@li.org>\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "The site is currently in a content freeze."
+msgstr "El sitio está actualmente en un período de congelación de contenido."
+
+msgid "Site administrator? Click here."
+msgstr "¿Administrador del sitio? Haga clic aquí."
+
+msgid "<strong>Warning!</strong> Content is currently frozen for other admins. <a href=\"%s\">Click here to change the settings</a>."
+msgstr "<strong>¡Advertencia!</strong> El contenido está actualmente congelado para otros administradores. <a href=\"%s\">Haga clic aquí para cambiar la configuración</a>."
+
+msgid "Content Freeze Out"
+msgstr "Congelación de Contenido"
+
+msgid "Lock screen message:"
+msgstr "Mensaje de pantalla de bloqueo:"
+
+msgid "Content is currently frozen. You can't log in now."
+msgstr "El contenido está actualmente congelado. No puede iniciar sesión ahora."
+
+msgid "Save Message"
+msgstr "Guardar Mensaje"
+
+msgid "Unfreeze Content"
+msgstr "Descongelar Contenido"
+
+msgid "To unfreeze, remove the <code>CONTENT_FREEZE_OUT</code> constant from wp-config.php."
+msgstr "Para descongelar, elimine la constante <code>CONTENT_FREEZE_OUT</code> de wp-config.php."
+
+msgid "Freeze Content"
+msgstr "Congelar Contenido"
+
+msgid "Content Freeze is currently <strong>enabled</strong>."
+msgstr "La congelación de contenido está actualmente <strong>activada</strong>."
+
+msgid "(active via <code>CONTENT_FREEZE_OUT</code> constant in wp-config)"
+msgstr "(activo mediante la constante <code>CONTENT_FREEZE_OUT</code> en wp-config)"
+
+msgid "Content Freeze is currently <strong>disabled</strong>."
+msgstr "La congelación de contenido está actualmente <strong>desactivada</strong>."
