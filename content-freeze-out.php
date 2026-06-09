@@ -11,10 +11,8 @@ License: GPL
 Copyright: Wholegrain Digital
 */
 
-if (!function_exists('is_admin')) {
-    header('Status: 403 Forbidden');
-    header('HTTP/1.1 403 Forbidden');
-    exit();
+if (!defined('ABSPATH')) {
+    exit;
 }
 
 define('CONTENT_FREEZE_OUT_VERSION', '0.1.3');
@@ -65,7 +63,7 @@ class Content_Freeze_Out {
                     switch_to_blog($blog_id);
                     call_user_func($pfunction, $networkwide);
                 }
-                switch_to_blog($old_blog);
+                restore_current_blog();
                 return;
             }
         }
@@ -95,7 +93,7 @@ class Content_Freeze_Out {
         Load language translation files (if any) for our plugin.
     */
     function init() {
-        load_plugin_textdomain('content_freeze_out', CONTENT_FREEZE_OUT_DIR . 'lang', basename(dirname(__FILE__)) . '/lang');
+        load_plugin_textdomain('content_freeze_out', false, basename(dirname(__FILE__)) . '/lang');
     }
 
     function admin_init() {
@@ -122,7 +120,7 @@ class Content_Freeze_Out {
         ?>
           <script type="text/javascript">
           <!--
-          window.location= <?php echo "'" . $location . "'"; ?>;
+          window.location= '<?php echo esc_js( esc_url( $location ) ); ?>';
           //-->
           </script>
         <?php

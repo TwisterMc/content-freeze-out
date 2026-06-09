@@ -1,8 +1,6 @@
 <?php
-if (!function_exists('is_admin')) {
-    header('Status: 403 Forbidden');
-    header('HTTP/1.1 403 Forbidden');
-    exit();
+if (!defined('ABSPATH')) {
+    exit;
 }
 
 if (!class_exists("Content_Freeze_Out_Settings")) :
@@ -57,17 +55,18 @@ class Content_Freeze_Out_Settings {
 		}
 
 		if ($this->is_frozen() && $this->get_field_value('allowed_id') != get_current_user_id()) {
-			wp_logout();
-			wp_redirect(wp_login_url());
+			if ( ! wp_doing_ajax() && ! defined( 'REST_REQUEST' ) ) {
+				wp_logout();
+				wp_redirect( wp_login_url() );
+				exit;
+			}
 		}
 	}
 
 	function login_warning_message($message) {
 		$custom_message = $this->get_field_value('lock_message');
 		if (empty($custom_message)) {
-			$user_info = get_userdata($this->get_field_value('allowed_id'));
-			$by = (!empty($user_info->user_firstname) ? ' by ' . $user_info->user_firstname . ' ' . $user_info->user_lastname : '');
-			$custom_message = 'Content is frozen' . $by . '. You can\'t login now.';
+			$custom_message = __( "Content is currently frozen. You can't log in now.", 'content_freeze_out' );
 		}
 		return '<div id="login_error" style="text-align:center; font-size:1.2em; font-weight:bold; padding: 16px;">'
 			. esc_html($custom_message)
@@ -75,19 +74,28 @@ class Content_Freeze_Out_Settings {
 	}
 
 	function content_frozen_notice() {
-	    ?>
+		$settings_url = esc_url( admin_url( 'options-general.php?page=content_freeze_out' ) );
+		?>
 	    <div class="update-nag" style="display: block;">
-	        <p style="margin: 0;"><?php _e('<b>Warning!</b> Content is currently frozen for other admins. <a href="'.admin_url('options-general.php?page=content_freeze_out').'">Click here to change the settings</a>.', 'content_freeze_out') ?></p>
+	        <p style="margin: 0;">
+	        	<?php
+	        	printf(
+	        		/* translators: %s: URL to the Content Freeze Out settings page */
+	        		__( '<strong>Warning!</strong> Content is currently frozen for other admins. <a href="%s">Click here to change the settings</a>.', 'content_freeze_out' ),
+	        		$settings_url
+	        	);
+	        	?>
+	        </p>
 	    </div>
 	    <?php
 	}
 
 	function admin_menu() {
-		if (! current_user_can('update_plugins'))
+		if (! current_user_can('manage_options'))
 			return;
 
 		// Add a new submenu to the standard Settings panel
-		$this->pagehook = $page = add_options_page(__('Content Freeze Out', 'content_freeze_out'), __('Content Freeze Out', 'content_freeze_out'), 'administrator', $this->page_id, array($this,'render'));
+		$this->pagehook = $page = add_options_page(__('Content Freeze Out', 'content_freeze_out'), __('Content Freeze Out', 'content_freeze_out'), 'manage_options', $this->page_id, array($this,'render'));
 
 		// Executed on-load. Add all metaboxes.
 		add_action('load-' . $this->pagehook, array($this, 'metaboxes'));
@@ -116,11 +124,14 @@ class Content_Freeze_Out_Settings {
 		Sanitize our plugin settings array as needed.
 	*/
 	function sanitize_theme_options($options) {
-		if ($options['content_frozen']) {
-			$options['content_frozen'] = stripcslashes($options['content_frozen']);
+		if (isset($options['allowed_id'])) {
+			$options['allowed_id'] = absint($options['allowed_id']);
+		}
+		if (isset($options['content_frozen'])) {
+			$options['content_frozen'] = absint($options['content_frozen']);
 		}
 		if (isset($options['lock_message'])) {
-			$options['lock_message'] = sanitize_text_field(stripcslashes($options['lock_message']));
+			$options['lock_message'] = sanitize_text_field(wp_unslash($options['lock_message']));
 		}
 		return $options;
 	}
