@@ -161,12 +161,22 @@ class Content_Freeze_Out_Settings {
 		if (isset($options['allowed_id'])) {
 			$options['allowed_id'] = absint($options['allowed_id']);
 		}
-		if (isset($options['content_frozen'])) {
-			$options['content_frozen'] = absint($options['content_frozen']);
-		}
 		if (isset($options['lock_message'])) {
 			$options['lock_message'] = sanitize_text_field(wp_unslash($options['lock_message']));
 		}
+
+		// Determine freeze state from the submitted action button, not a hidden field.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$action = isset($_POST['cfo_action']) ? sanitize_text_field(wp_unslash($_POST['cfo_action'])) : '';
+		$current = (bool) $this->get_field_value('content_frozen');
+		if ($action === __('Freeze Content', 'content_freeze_out')) {
+			$options['content_frozen'] = 1;
+		} elseif ($action === __('Unfreeze Content', 'content_freeze_out')) {
+			$options['content_frozen'] = 0;
+		} else {
+			$options['content_frozen'] = (int) $current;
+		}
+
 		return $options;
 	}
 
@@ -241,30 +251,30 @@ class Content_Freeze_Out_Settings {
 		$config_override = defined('CONTENT_FREEZE_OUT') && CONTENT_FREEZE_OUT;
 		if ($this->is_frozen()) {
 ?>
-			<input type="hidden" name="<?php echo $this->get_field_name('content_frozen'); ?>" id="<?php echo $this->get_field_id('content_frozen'); ?>" value="0" />
 			<p>You have <b>frozen</b> the content for other admins<?php if ($config_override): ?> <em>(active via <code>CONTENT_FREEZE_OUT</code> constant in wp-config)</em><?php endif; ?></p>
 			<p>
 				<label for="<?php echo $this->get_field_id('lock_message'); ?>"><?php _e('Lock screen message:', 'content_freeze_out'); ?></label><br />
 				<input type="text" name="<?php echo $this->get_field_name('lock_message'); ?>" id="<?php echo $this->get_field_id('lock_message'); ?>" value="<?php echo esc_attr($this->get_field_value('lock_message')); ?>" class="regular-text" placeholder="<?php esc_attr_e( "Content is currently frozen. You can't log in now.", 'content_freeze_out' ); ?>" />
 			</p>
-			<?php if (!$config_override): ?>
 			<p>
-				<input type="submit" class="button button-primary" name="save_options" value="<?php esc_attr_e('Unfreeze Content', 'content_freeze_out'); ?>" />
+				<input type="submit" class="button" name="cfo_action" value="<?php esc_attr_e('Save Message', 'content_freeze_out'); ?>" />
+				<?php if (!$config_override): ?>
+				<input type="submit" class="button button-primary" name="cfo_action" value="<?php esc_attr_e('Unfreeze Content', 'content_freeze_out'); ?>" />
+				<?php else: ?>
+				<em><?php _e('To unfreeze, remove the <code>CONTENT_FREEZE_OUT</code> constant from wp-config.php.', 'content_freeze_out'); ?></em>
+				<?php endif; ?>
 			</p>
-			<?php else: ?>
-			<p><em><?php _e('To unfreeze, remove the <code>CONTENT_FREEZE_OUT</code> constant from wp-config.php.', 'content_freeze_out'); ?></em></p>
-			<?php endif; ?>
 <?php
 		} else {
 ?>
-			<input type="hidden" name="<?php echo $this->get_field_name('content_frozen'); ?>" id="<?php echo $this->get_field_id('content_frozen'); ?>" value="1" />
 			<p>Content is currently <b>not frozen</b></p>
 			<p>
 				<label for="<?php echo $this->get_field_id('lock_message'); ?>"><?php _e('Lock screen message:', 'content_freeze_out'); ?></label><br />
 				<input type="text" name="<?php echo $this->get_field_name('lock_message'); ?>" id="<?php echo $this->get_field_id('lock_message'); ?>" value="<?php echo esc_attr($this->get_field_value('lock_message')); ?>" class="regular-text" placeholder="<?php esc_attr_e( "Content is currently frozen. You can't log in now.", 'content_freeze_out' ); ?>" />
 			</p>
 			<p>
-				<input type="submit" class="button button-primary" name="save_options" value="<?php esc_attr_e('Freeze Content', 'content_freeze_out'); ?>" />
+				<input type="submit" class="button" name="cfo_action" value="<?php esc_attr_e('Save Message', 'content_freeze_out'); ?>" />
+				<input type="submit" class="button button-primary" name="cfo_action" value="<?php esc_attr_e('Freeze Content', 'content_freeze_out'); ?>" />
 			</p>
 <?php
 		}
