@@ -56,12 +56,16 @@ Not 100%. The only person that could make any changes to the site from inside th
 
 = 0.2.1 =
 
-* Feature: added admin bar notice when a content freeze is active
+* Feature: admin bar notice (snowflake icon, red highlight) shown when a content freeze is active
+* Feature: login form is hidden during a freeze; a "Site administrator? Click here" toggle reveals it for admins
+* Feature: styled "ice box" notification on the login screen for the freeze message
+* Feature: Spanish (es_ES) translations added
 * Fix: corrected `allowed_id` logic so the permitted user is preserved when a freeze is enabled
-* Feature: `CONTENT_FREEZE_OUT` `wp-config.php` setting.
 
 = 0.2.0 =
 
+* Feature: custom lock screen message configurable under Settings > Content Freeze
+* Feature: `CONTENT_FREEZE_OUT` constant — define in `wp-config.php` to force-enable a freeze
 * Security: replaced invalid `is_admin()` direct-file-access guard with standard `ABSPATH` check
 * Security: added `exit` after `wp_redirect()` to prevent redirect bypass; gated logout to skip AJAX and REST requests
 * Security: sanitize `allowed_id` as integer in settings sanitization callback

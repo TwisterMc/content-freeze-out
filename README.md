@@ -2,7 +2,11 @@
 
 Content Freeze Out is a WordPress plugin that lets an administrator temporarily freeze content changes during maintenance windows, launches, and migrations.
 
-When a freeze is enabled, only the administrator who activated the freeze can access the admin area. Other users are logged out and blocked from logging in until the freeze is lifted. A snowflake notice appears in the admin bar (highlighted in red) as a reminder that a freeze is active.
+When a freeze is enabled, only the administrator who activated the freeze can access the admin area. Other users are logged out and blocked from logging in until the freeze is lifted. During a freeze:
+
+- The login form is hidden and replaced with the freeze message; a "Site administrator? Click here" button reveals the form for admins.
+- A snowflake notice appears in the admin bar (highlighted in red) as a persistent reminder.
+- An admin notice is shown on all admin pages (except the settings page) while the freeze is active.
 
 ## Requirements
 
