@@ -3,7 +3,7 @@ Contributors: twistermc, wholegraindigital, MatheusFD, adamtomat, tferry
 Requires at least: 6.0
 Requires PHP: 7.4
 Tested up to: 7.0
-Stable tag: 0.2.0
+Stable tag: 0.2.1
 Tags: content freeze, content lock, code lock, maintenance, migration
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -27,6 +27,20 @@ The content freeze plugin is really plug and play. Just upload the plugin and ac
 2. Activate the plugin through the 'Plugins' menu in WordPress
 To start/stop a content freeze, go to Settings > Content Freeze and click the Freeze Content / Unfreeze Content button.
 
+== Configuration ==
+
+=== Custom login message ===
+
+When a freeze is active, a message is shown on the WordPress login screen. You can customize this in the Settings > Content Freeze.
+
+=== wp-config.php constant ===
+
+You can force-enable a content freeze by adding the following constant to your `wp-config.php`.
+
+    define( 'CONTENT_FREEZE_OUT', true );
+
+When the constant is active, the freeze cannot be lifted from the admin UI — you must remove or set the constant to `false` in `wp-config.php` to unfreeze the site. The settings page will note when the freeze is active via this constant.
+
 == Frequently Asked Questions ==
 
 = Does it work on multisite installations? =
@@ -39,6 +53,12 @@ Not 100%. The only person that could make any changes to the site from inside th
 
 
 == Changelog ==
+
+= 0.2.1 =
+
+* Feature: added admin bar notice when a content freeze is active
+* Fix: corrected `allowed_id` logic so the permitted user is preserved when a freeze is enabled
+* Feature: `CONTENT_FREEZE_OUT` `wp-config.php` setting.
 
 = 0.2.0 =
 
