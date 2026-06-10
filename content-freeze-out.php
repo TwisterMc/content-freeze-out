@@ -36,6 +36,11 @@ class Content_Freeze_Out {
 
         $this->settings = new Content_Freeze_Out_Settings();
 
+        if (!class_exists("Content_Freeze_Out_Updater")) {
+            require(CONTENT_FREEZE_OUT_DIR . 'updater.php');
+        }
+        new Content_Freeze_Out_Updater(__FILE__, 'TwisterMc/content-freeze-out');
+
         add_action('init', array($this,'init'));
 
         register_activation_hook(__FILE__, array($this,'activate'));
