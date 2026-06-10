@@ -50,7 +50,30 @@ class Content_Freeze_Out_Settings {
 			add_filter('login_message', array($this, 'login_warning_message'));
 			add_action('login_enqueue_scripts', array($this, 'login_hide_form_styles'));
 			add_action('login_footer', array($this, 'login_toggle_script'));
+			add_action('admin_bar_menu', array($this, 'admin_bar_frozen_notice'), 100);
+			add_action('wp_head', array($this, 'admin_bar_frozen_styles'));
+			add_action('admin_head', array($this, 'admin_bar_frozen_styles'));
 		}
+	}
+
+	function admin_bar_frozen_notice( $wp_admin_bar ) {
+		if ( ! is_admin_bar_showing() ) {
+			return;
+		}
+
+		$wp_admin_bar->add_node( array(
+			'id'    => 'content-freeze-out',
+			'title' => '&#10052; ' . esc_html__( 'Content Freeze Active', 'content_freeze_out' ),
+			'href'  => admin_url( 'options-general.php?page=content_freeze_out' ),
+			'meta'  => array(
+				'title' => esc_attr__( 'Content freeze is active — click to manage', 'content_freeze_out' ),
+				'class' => 'cfo-frozen',
+			),
+		) );
+	}
+
+	function admin_bar_frozen_styles() {
+		echo '<style>#wpadminbar li.cfo-frozen > .ab-item { background: #c0392b !important; color: #fff !important; }</style>';
 	}
 
 	function admin_init() {
