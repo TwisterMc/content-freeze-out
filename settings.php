@@ -184,7 +184,9 @@ class Content_Freeze_Out_Settings {
 			$options['allowed_id'] = 0;
 		} else {
 			$options['content_frozen'] = (int) $current;
-			if ($options['content_frozen'] !== 1) {
+			if ($options['content_frozen'] === 1) {
+				$options['allowed_id'] = (int) $this->get_field_value('allowed_id');
+			} else {
 				$options['allowed_id'] = 0;
 			}
 		}
