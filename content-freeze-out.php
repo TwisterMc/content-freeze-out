@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Content Freeze Out
-Plugin URI: https://www.twistermc.com/
+Plugin URI: https://github.com/TwisterMc/content-freeze-out
 Description: Enable a content freeze, locking all users out of the site.
 Version: 0.2.1
 Requires at least: 6.0
