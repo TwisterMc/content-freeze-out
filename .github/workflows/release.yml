@@ -23,17 +23,7 @@ jobs:
 
       - name: Build zip
         run: |
-          mkdir -p build/content-freeze-out
-          rsync -av \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='.claude' \
-            --exclude='.gitignore' \
-            --exclude='.DS_Store' \
-            --exclude='build' \
-            . build/content-freeze-out/
-          cd build
-          zip -r "../content-freeze-out-${{ steps.version.outputs.version }}.zip" content-freeze-out/
+          git archive --format=zip --prefix=content-freeze-out/ -o "content-freeze-out-${{ steps.version.outputs.version }}.zip" HEAD
 
       - name: Create release
         uses: softprops/action-gh-release@v2

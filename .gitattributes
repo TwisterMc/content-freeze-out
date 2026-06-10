@@ -1,0 +1,5 @@
+.github/          export-ignore
+.claude/          export-ignore
+.gitignore        export-ignore
+.gitattributes    export-ignore
+tests/fixtures/   export-ignore
