@@ -79,9 +79,6 @@ class Content_Freeze_Out_Settings {
 	function admin_init() {
 		register_setting($this->settings_field, $this->settings_field, array($this, 'sanitize_theme_options'));
 
-		if ($this->is_frozen() && isset($_GET['page']) && sanitize_text_field(wp_unslash($_GET['page'])) !== 'content_freeze_out') {
-			add_action('admin_notices', array($this, 'content_frozen_notice'));
-		}
 
 		if ($this->is_frozen() && (int) $this->get_field_value('allowed_id') !== (int) get_current_user_id()) {
 			if ( ! wp_doing_ajax() && ! defined( 'REST_REQUEST' ) ) {
