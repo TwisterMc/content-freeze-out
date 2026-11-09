@@ -97,7 +97,7 @@ class Content_Freeze_Out_Settings {
 		$notice = '<div id="login_error" class="frozen-ice-box">'
 			. esc_html($custom_message)
 			. '</div>'
-			. '<p class="cfo-admin-link-wrap"><button type="button" id="cfo-show-login" class="button" aria-controls="loginform" aria-expanded="false">'
+			. '<p class="cfo-admin-link-wrap"><button type="button" id="cfo-show-login" class="button" aria-controls="loginform" aria-expanded="false" aria-label="' . esc_attr__( 'Show login form', 'content_freeze_out' ) . '">'
 			. esc_html__( 'Site administrator? Click here.', 'content_freeze_out' )
 			. '</button></p>';
 		return $notice . $message;
@@ -117,7 +117,7 @@ class Content_Freeze_Out_Settings {
 				position: relative;
 				overflow: hidden;
 				background-color: #eaf6ff;
-				border: 2px solid #bce2ff;
+				border: 2px solid #5599cc;
 				box-shadow:
 					inset 0 0 12px rgba(255, 255, 255, 0.8),
 					inset 3px 3px 0px rgba(255, 255, 255, 0.7),
@@ -151,6 +151,9 @@ class Content_Freeze_Out_Settings {
 			});
 		})();
 		</script>
+		<noscript>
+			<p><?php esc_html_e( 'JavaScript is required to show the login form.', 'content_freeze_out' ); ?></p>
+		</noscript>
 		<?php
 	}
 
@@ -193,8 +196,13 @@ class Content_Freeze_Out_Settings {
 		}
 
 		// Determine freeze state from stable action tokens.
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$action = isset($_POST['cfo_action']) ? sanitize_key(wp_unslash($_POST['cfo_action'])) : '';
+		
+		// Verify nonce before processing freeze/unfreeze actions
+		if (!empty($action) && !wp_verify_nonce($_POST[$this->settings_field . '_nonce'] ?? '', $this->settings_field)) {
+			$action = '';
+		}
+		
 		$current = (bool) $this->get_field_value('content_frozen');
 		if ($action === 'freeze_content') {
 			$options['content_frozen'] = 1;
