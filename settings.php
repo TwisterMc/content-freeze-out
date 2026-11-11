@@ -196,13 +196,10 @@ class Content_Freeze_Out_Settings {
 		}
 
 		// Determine freeze state from stable action tokens.
+		// This form posts through options.php, which verifies the settings_fields() nonce.
+		// Avoid a separate nonce check here; it can reject valid actions if its parameters differ.
 		$action = isset($_POST['cfo_action']) ? sanitize_key(wp_unslash($_POST['cfo_action'])) : '';
-		
-		// Verify nonce before processing freeze/unfreeze actions
-		if (!empty($action) && !wp_verify_nonce($_POST[$this->settings_field . '_nonce'] ?? '', $this->settings_field)) {
-			$action = '';
-		}
-		
+
 		$current = (bool) $this->get_field_value('content_frozen');
 		if ($action === 'freeze_content') {
 			$options['content_frozen'] = 1;
