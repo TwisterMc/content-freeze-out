@@ -3,7 +3,7 @@ Contributors: twistermc, wholegraindigital, MatheusFD, adamtomat, tferry
 Requires at least: 6.0
 Requires PHP: 7.4
 Tested up to: 7.0
-Stable tag: 0.2.1
+Stable tag: 0.3.2
 Tags: content freeze, content lock, code lock, maintenance, migration
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -53,6 +53,10 @@ Not 100%. The only person that could make any changes to the site from inside th
 
 
 == Changelog ==
+
+= 0.3.2 =
+
+* Fix: preserve the plugin folder when installing updates from GitHub.
 
 = 0.2.1 =
 

@@ -2,4 +2,4 @@
 .claude/          export-ignore
 .gitignore        export-ignore
 .gitattributes    export-ignore
-tests/fixtures/   export-ignore
+tests/**          export-ignore

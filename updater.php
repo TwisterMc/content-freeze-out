@@ -20,7 +20,7 @@ class Content_Freeze_Out_Updater {
 
         add_filter('pre_set_site_transient_update_plugins', array($this, 'check_for_update'));
         add_filter('plugins_api', array($this, 'plugin_info'), 10, 3);
-        add_filter('upgrader_post_install', array($this, 'after_install'), 10, 3);
+        add_filter('upgrader_source_selection', array($this, 'select_source'), 10, 4);
     }
 
     private function get_release_info() {
@@ -56,7 +56,7 @@ class Content_Freeze_Out_Updater {
     private function get_zip_url($release) {
         if (!empty($release->assets)) {
             foreach ($release->assets as $asset) {
-                if (str_ends_with($asset->name, '.zip')) {
+                if (substr($asset->name, -4) === '.zip') {
                     return $asset->browser_download_url;
                 }
             }
@@ -123,18 +123,34 @@ class Content_Freeze_Out_Updater {
         );
     }
 
-    // Rename the unzipped folder so WordPress can find the plugin after update.
-    public function after_install($response, $hook_extra, $result) {
+    public function select_source($source, $remote_source, $upgrader, $hook_extra) {
         if (!isset($hook_extra['plugin']) || $hook_extra['plugin'] !== $this->plugin_slug) {
-            return $response;
+            return $source;
+        }
+        if (is_wp_error($source)) {
+            return $source;
         }
 
         global $wp_filesystem;
-        $plugin_dir = WP_PLUGIN_DIR . '/' . dirname($this->plugin_slug);
-        $wp_filesystem->move($result['destination'], $plugin_dir, true);
-        $result['destination'] = $plugin_dir;
+        $plugin_dir = dirname($this->plugin_slug);
+        if (!$wp_filesystem->exists(trailingslashit($source) . basename($this->plugin_slug))) {
+            return new WP_Error('cfo_invalid_package', __('The update package does not contain the plugin file.', 'content_freeze_out'));
+        }
 
-        return $result;
+        if (basename(untrailingslashit($source)) === $plugin_dir) {
+            return $source;
+        }
+
+        if (untrailingslashit($source) === untrailingslashit($remote_source)) {
+            return new WP_Error('cfo_invalid_package', __('The update package must contain the plugin in its own folder.', 'content_freeze_out'));
+        }
+
+        $renamed_source = trailingslashit($remote_source) . $plugin_dir;
+        if (!$wp_filesystem->move($source, $renamed_source)) {
+            return new WP_Error('cfo_rename_failed', __('Could not prepare the plugin update folder.', 'content_freeze_out'));
+        }
+
+        return trailingslashit($renamed_source);
     }
 
 } // end class
