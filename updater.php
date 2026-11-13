@@ -133,24 +133,55 @@ class Content_Freeze_Out_Updater {
 
         global $wp_filesystem;
         $plugin_dir = dirname($this->plugin_slug);
-        if (!$wp_filesystem->exists(trailingslashit($source) . basename($this->plugin_slug))) {
-            return new WP_Error('cfo_invalid_package', __('The update package does not contain the plugin file.', 'content_freeze_out'));
-        }
+        $plugin_file = basename($this->plugin_slug);
 
-        if (basename(untrailingslashit($source)) === $plugin_dir) {
-            return $source;
-        }
-
+        // Prevent trying to move a folder onto itself
         if (untrailingslashit($source) === untrailingslashit($remote_source)) {
             return new WP_Error('cfo_invalid_package', __('The update package must contain the plugin in its own folder.', 'content_freeze_out'));
         }
 
-        $renamed_source = trailingslashit($remote_source) . $plugin_dir;
-        if (!$wp_filesystem->move($source, $renamed_source)) {
-            return new WP_Error('cfo_rename_failed', __('Could not prepare the plugin update folder.', 'content_freeze_out'));
+        // Check if the plugin file exists at the root of the extracted source
+        if ($wp_filesystem->exists(trailingslashit($source) . $plugin_file)) {
+            // Plugin file is at root of extracted folder
+            // If the folder is already named correctly, return it
+            if (basename(untrailingslashit($source)) === $plugin_dir) {
+                return $source;
+            }
+
+            // Need to rename the source folder to match plugin directory
+            $renamed_source = trailingslashit($remote_source) . $plugin_dir;
+            if (!$wp_filesystem->move($source, $renamed_source)) {
+                return new WP_Error('cfo_rename_failed', __('Could not prepare the plugin update folder.', 'content_freeze_out'));
+            }
+
+            return trailingslashit($renamed_source);
         }
 
-        return trailingslashit($renamed_source);
+        // Check if plugin is in a subdirectory (nested structure from zip extraction)
+        // This handles cases where git archive creates a folder inside the extracted archive
+        $dir_list = $wp_filesystem->dirlist($source);
+        if ($dir_list && is_array($dir_list)) {
+            foreach ($dir_list as $item_name => $item_info) {
+                // Only check directories, and skip if the directory is already the plugin dir
+                if ($item_info['type'] === 'd' && $item_name !== $plugin_dir) {
+                    $nested_plugin_file = trailingslashit($source) . $item_name . '/' . $plugin_file;
+                    if ($wp_filesystem->exists($nested_plugin_file)) {
+                        // Found plugin in subdirectory, move it to the correct location
+                        $nested_source = trailingslashit($source) . $item_name;
+                        $renamed_source = trailingslashit($remote_source) . $plugin_dir;
+                        
+                        if (!$wp_filesystem->move($nested_source, $renamed_source)) {
+                            return new WP_Error('cfo_rename_failed', __('Could not prepare the plugin update folder.', 'content_freeze_out'));
+                        }
+
+                        return trailingslashit($renamed_source);
+                    }
+                }
+            }
+        }
+
+        // Plugin file not found at expected location
+        return new WP_Error('cfo_invalid_package', __('The update package does not contain the plugin file at the expected location.', 'content_freeze_out'));
     }
 
 } // end class

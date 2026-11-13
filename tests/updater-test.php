@@ -59,6 +59,26 @@ class Test_Filesystem {
         }
         return true;
     }
+
+    public function dirlist($path, $include_hidden = true, $recursive = false) {
+        $dirlist = array();
+        $prefix = trailingslashit($path);
+        foreach ($this->files as $file_path => $value) {
+            if (strpos($file_path, $prefix) === 0) {
+                $relative = substr($file_path, strlen($prefix));
+                $parts = explode('/', trim($relative, '/'));
+                if (!empty($parts[0]) && !isset($dirlist[$parts[0]])) {
+                    // Only mark as directory if there are more path components
+                    $is_dir = count($parts) > 1;
+                    $dirlist[$parts[0]] = array(
+                        'name' => $parts[0],
+                        'type' => $is_dir ? 'd' : 'f'
+                    );
+                }
+            }
+        }
+        return $dirlist;
+    }
 }
 
 function expect($condition, $message) {
