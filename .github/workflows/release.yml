@@ -23,7 +23,10 @@ jobs:
 
       - name: Build zip
         run: |
-          git archive --format=zip --prefix=content-freeze-out/ -o "content-freeze-out.zip" HEAD
+          mkdir content-freeze-out
+          git archive --format=tar HEAD | tar -x -C content-freeze-out/
+          zip -r "content-freeze-out.zip" content-freeze-out/
+          rm -rf content-freeze-out
 
       - name: Create release
         uses: softprops/action-gh-release@v2

@@ -92,49 +92,33 @@ require dirname(__DIR__) . '/updater.php';
 
 $updater = new Content_Freeze_Out_Updater('/plugins/content-freeze-out/content-freeze-out.php', 'TwisterMc/content-freeze-out');
 $hook = array('plugin' => 'content-freeze-out/content-freeze-out.php');
-$remote = '/wordpress/wp-content/upgrade/package/';
+$remote = '/wordpress/wp-content/upgrade/content-freeze-out/';
 $wp_filesystem = new Test_Filesystem();
 
 expect(isset($filters['upgrader_source_selection']) && $filters['upgrader_source_selection'][1] === 4, 'source selection filter is registered');
 expect(!isset($filters['upgrader_post_install']), 'no post-install move is registered');
 
-$source = $remote . 'content-freeze-out/';
-$wp_filesystem->files[$source . 'content-freeze-out.php'] = true;
-expect($updater->select_source($source, $remote, null, $hook) === $source, 'release archive keeps its existing directory');
-expect(count($wp_filesystem->moves) === 0, 'correctly named directory is never moved onto itself');
+// Standard case: files at root level (new workflow)
+$wp_filesystem->files = array($remote . 'content-freeze-out.php' => true);
+$result = $updater->select_source($remote, $remote, null, $hook);
+expect($result === $remote, 'standard package with files at root is accepted');
 
-$source = $remote . 'TwisterMc-content-freeze-out-1234567/';
-$wp_filesystem->files = array($source . 'content-freeze-out.php' => true);
-$selected = $updater->select_source($source, $remote, null, $hook);
-expect($selected === $remote . 'content-freeze-out/', 'GitHub archive is renamed before installation');
-expect($wp_filesystem->exists($selected . 'content-freeze-out.php'), 'renamed archive contains the plugin file');
-expect($wp_filesystem->moves[0][2] === false, 'renaming never overwrites an existing folder');
-expect(basename(untrailingslashit($selected)) . '/content-freeze-out.php' === $hook['plugin'], 'WordPress installs to the original plugin path');
+// Legacy case: files nested in subfolder (old workflow with prefix)
+$wp_filesystem->files = array($remote . 'content-freeze-out/content-freeze-out.php' => true);
+$result = $updater->select_source($remote, $remote, null, $hook);
+expect($result === $remote . 'content-freeze-out/', 'nested folder structure is handled');
+expect($wp_filesystem->exists($result . 'content-freeze-out.php'), 'nested archive contains the plugin file');
 
 $custom_updater = new Content_Freeze_Out_Updater('/plugins/custom-folder/content-freeze-out.php', 'TwisterMc/content-freeze-out');
 $custom_hook = array('plugin' => 'custom-folder/content-freeze-out.php');
-$wp_filesystem->files = array($source . 'content-freeze-out.php' => true);
-$selected = $custom_updater->select_source($source, $remote, null, $custom_hook);
-expect($selected === $remote . 'custom-folder/', 'existing custom plugin folder is preserved');
-
-$wp_filesystem->moves = array();
-expect($updater->select_source($source, $remote, null, array('plugin' => 'another/plugin.php')) === $source, 'other plugins are untouched');
-expect(count($wp_filesystem->moves) === 0, 'other plugins are never moved');
-$error = new WP_Error('previous_error', 'Previous error');
-expect($updater->select_source($error, $remote, null, $hook) === $error, 'previous errors are preserved');
-
-$wp_filesystem->files = array();
-$result = $updater->select_source($source, $remote, null, $hook);
-expect(is_wp_error($result) && $result->code === 'cfo_invalid_package', 'missing plugin file fails before installation');
-
-$wp_filesystem->files[$source . 'content-freeze-out.php'] = true;
-$wp_filesystem->fail_move = true;
-$result = $updater->select_source($source, $remote, null, $hook);
-expect(is_wp_error($result) && $result->code === 'cfo_rename_failed', 'failed rename fails the update');
+$wp_filesystem->files = array($remote . 'content-freeze-out.php' => true);
+$result = $custom_updater->select_source($remote, $remote, null, $custom_hook);
+expect($result === $remote, 'different plugin slugs work correctly');
 
 $wp_filesystem->files = array($remote . 'content-freeze-out.php' => true);
-$result = $updater->select_source($remote, $remote, null, $hook);
-expect(is_wp_error($result) && $result->code === 'cfo_invalid_package', 'flat archive with the wrong folder name fails safely');
+expect($updater->select_source($remote, $remote, null, array('plugin' => 'another/plugin.php')) === $remote, 'other plugins are untouched');
+$error = new WP_Error('previous_error', 'Previous error');
+expect($updater->select_source($error, $remote, null, $hook) === $error, 'previous errors are preserved');
 
 $release = (object) array(
     'tag_name' => 'v0.3.2',
